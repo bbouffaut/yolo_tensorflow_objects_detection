@@ -5,7 +5,7 @@ import scipy.misc
 from keras import backend as K
 import argparse
 from yolo_predict import load_keras_model, predict
-from matplotlib.pyplot import imshow
+from matplotlib import pyplot
 
 def get_out_filename(filename):
     base = os.path.basename(filename)
@@ -16,7 +16,9 @@ def display_image(filename):
     print(filename)
     # Display the results in the notebook
     output_image = scipy.misc.imread(filename)
-    imshow(output_image)
+    pyplot.imshow(output_image)
+    pyplot.show()
+
 
 def save_output_image(image, image_file):
     # Save the predicted bounding box on the image
