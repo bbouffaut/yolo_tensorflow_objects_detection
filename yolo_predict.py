@@ -4,6 +4,7 @@ from keras.models import load_model, Model
 from utils.yolo_utils import read_classes, read_anchors, generate_colors, preprocess_image, draw_boxes, scale_boxes
 from utils.keras_yolo import yolo_head, yolo_boxes_to_corners, preprocess_true_boxes, yolo_loss, yolo_body
 from yolo_boxes_filtering import yolo_eval
+from utils.timer import Timer
 
 
 def load_keras_model(model_filename, classes_filename, anchors_filename):
@@ -31,12 +32,19 @@ def predict(sess, yolo_model, class_names, scores, boxes, classes, image_file ):
     Note: "None" actually represents the number of predicted boxes, it varies between 0 and max_boxes.
     """
 
+    # start timer
+    timer = Timer()
+    timer.tic()
+
     # Preprocess your image
     image, image_data = preprocess_image(image_file, model_image_size = (608, 608))
 
     # Run the session with the correct tensors and choose the correct placeholders in the feed_dict.
     # You'll need to use feed_dict={yolo_model.input: ... , K.learning_phase(): 0})
     out_scores, out_boxes, out_classes = sess.run([ scores, boxes, classes ], feed_dict={yolo_model.input: image_data, K.learning_phase(): 0})
+
+    # measure processing_time
+    processing_time = timer.toc(average=False)
 
     # Print predictions info
     print('Found {} boxes for {}'.format(len(out_boxes), image_file))
@@ -46,4 +54,4 @@ def predict(sess, yolo_model, class_names, scores, boxes, classes, image_file ):
     draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors)
 
     # return annotated image and detected objects
-    return image, out_scores, out_boxes, out_classes
+    return image, out_scores, out_boxes, out_classes, processing_time
