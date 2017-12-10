@@ -1,14 +1,12 @@
 """YOLO_v2 Model Defined in Keras."""
 import sys
-
 import numpy as np
 import tensorflow as tf
 from keras import backend as K
 from keras.layers import Lambda
 from keras.layers.merge import concatenate
 from keras.models import Model
-
-from ..utils import compose
+from .keras_utils import compose
 from .keras_darknet19 import (DarknetConv2D, DarknetConv2D_BN_Leaky, darknet_body)
 
 sys.path.append('..')
@@ -107,7 +105,7 @@ def yolo_head(feats, anchors, num_classes):
     conv_index = K.transpose(K.stack([conv_height_index, conv_width_index]))
     conv_index = K.reshape(conv_index, [1, conv_dims[0], conv_dims[1], 1, 2])
     conv_index = K.cast(conv_index, K.dtype(feats))
-    
+
     feats = K.reshape(feats, [-1, conv_dims[0], conv_dims[1], num_anchors, num_classes + 5])
     conv_dims = K.cast(K.reshape(conv_dims, [1, 1, 1, 1, 2]), K.dtype(feats))
 
@@ -328,7 +326,7 @@ def yolo_eval(yolo_outputs,
     boxes = yolo_boxes_to_corners(box_xy, box_wh)
     boxes, scores, classes = yolo_filter_boxes(
         box_confidence, boxes, box_class_probs, threshold=score_threshold)
-    
+
     # Scale boxes back to original image shape.
     height = image_shape[0]
     width = image_shape[1]
@@ -344,7 +342,7 @@ def yolo_eval(yolo_outputs,
     boxes = K.gather(boxes, nms_index)
     scores = K.gather(scores, nms_index)
     classes = K.gather(classes, nms_index)
-    
+
     return boxes, scores, classes
 
 
@@ -397,7 +395,7 @@ def preprocess_true_boxes(true_boxes, anchors, image_size):
         j = min(np.floor(box[0]).astype('int'),1)
         best_iou = 0
         best_anchor = 0
-                
+
         for k, anchor in enumerate(anchors):
             # Find IOU between box shifted to origin and anchor box.
             box_maxes = box[2:4] / 2.
@@ -415,7 +413,7 @@ def preprocess_true_boxes(true_boxes, anchors, image_size):
             if iou > best_iou:
                 best_iou = iou
                 best_anchor = k
-                
+
         if best_iou > 0:
             detectors_mask[i, j, best_anchor] = 1
             adjusted_box = np.array(
