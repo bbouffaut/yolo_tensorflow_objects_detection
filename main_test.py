@@ -4,7 +4,7 @@ import scipy.io
 import scipy.misc
 from keras import backend as K
 import argparse
-from yolo_predict import load_keras_model, predict
+from yolo_algo.yolo_predict import load_keras_model, predict
 
 
 def get_out_filename(filename):

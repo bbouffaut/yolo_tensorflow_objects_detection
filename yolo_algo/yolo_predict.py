@@ -1,10 +1,10 @@
 import tensorflow as tf
 from keras import backend as K
 from keras.models import load_model, Model
-from utils.yolo_utils import read_classes, read_anchors, generate_colors, preprocess_image, draw_boxes, scale_boxes
-from utils.keras_yolo import yolo_head, yolo_boxes_to_corners, preprocess_true_boxes, yolo_loss, yolo_body
-from yolo_boxes_filtering import yolo_eval
-from utils.timer import Timer
+from .utils.yolo_utils import read_classes, read_anchors, generate_colors, preprocess_image, draw_boxes, scale_boxes
+from .utils.keras_yolo import yolo_head, yolo_boxes_to_corners, preprocess_true_boxes, yolo_loss, yolo_body
+from .yolo_boxes_filtering import yolo_eval
+from .utils.timer import Timer
 
 
 def load_keras_model(model_filename, classes_filename, anchors_filename):
