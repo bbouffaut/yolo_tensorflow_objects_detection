@@ -1,0 +1,7 @@
+tensorflow==1.4.0
+Keras==2.1.1
+opencv_python==3.3.0.10
+Flask==0.12.2
+numpy==1.13.3
+scipy==1.0.0
+Pillow==4.3.0

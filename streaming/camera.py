@@ -20,3 +20,9 @@ class VideoCamera(object):
         # video stream.
         ret, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
+
+    def get_frame_cv2_format(self):
+        success, image = self.video.read()
+        # return openCV2 image object for further processing
+        cv2_im = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+        return cv2_im

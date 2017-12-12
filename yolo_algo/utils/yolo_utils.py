@@ -5,6 +5,7 @@ import random
 from keras import backend as K
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+import cv2
 
 def read_classes(classes_path):
     with open(classes_path) as f:
@@ -38,8 +39,13 @@ def scale_boxes(boxes, image_shape):
     return boxes
 
 def preprocess_image(img_path, model_image_size):
-    image_type = imghdr.what(img_path)
-    image = Image.open(img_path)
+    # check if img_path is a real path or if it is alreay an image
+    if (type(img_path) == str):
+        image_type = imghdr.what(img_path)
+        image = Image.open(img_path)
+    else:
+        image = Image.fromarray(img_path)
+
     resized_image = image.resize(tuple(reversed(model_image_size)), Image.BICUBIC)
     image_data = np.array(resized_image, dtype='float32')
     image_data /= 255.

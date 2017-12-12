@@ -1,2 +1,5 @@
 model_data/
 test_images/
+*.pyc
+*/*.pyc
+*/*/*.pyc

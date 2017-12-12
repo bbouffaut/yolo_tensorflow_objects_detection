@@ -7,7 +7,8 @@ from .yolo_boxes_filtering import yolo_eval
 from .utils.timer import Timer
 
 
-def load_keras_model(model_filename, classes_filename, anchors_filename):
+def load_keras_model(sess, model_filename, classes_filename, anchors_filename):
+    K.set_session(sess)
     class_names = read_classes(classes_filename)
     anchors = read_anchors(anchors_filename)
     image_shape = (720., 1280.)
