@@ -15,6 +15,7 @@ class YoloPredict:
         self.classes_filename = cfg.CLASSES
         self.anchors_filename = cfg.ANCHORS
         self.sess = K.get_session()
+        self.learning_phase = K.learning_phase()
 
     def load_keras_model(self, image_shape):
         self.class_names = read_classes(self.classes_filename)
@@ -48,7 +49,7 @@ class YoloPredict:
 
         # Run the session with the correct tensors and choose the correct placeholders in the feed_dict.
         # You'll need to use feed_dict={yolo_model.input: ... , K.learning_phase(): 0})
-        out_scores, out_boxes, out_classes = self.sess.run([ self.scores, self.boxes, self.classes ], feed_dict={ self.yolo_model.input: image_data, K.learning_phase(): 0})
+        out_scores, out_boxes, out_classes = self.sess.run([ self.scores, self.boxes, self.classes ], feed_dict={ self.yolo_model.input: image_data, self.learning_phase: 0})
 
         # measure processing_time
         processing_time = timer.toc(average=False)
