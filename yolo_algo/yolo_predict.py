@@ -56,10 +56,11 @@ class YoloPredict:
 
         # Print predictions info
         print('Found {} boxes in image in {} sec'.format(len(out_boxes), processing_time))
-        # Generate colors for drawing bounding boxes.
-        colors = generate_colors(self.class_names)
-        # Draw bounding boxes on the image file
-        draw_boxes(image, out_scores, out_boxes, out_classes, self.class_names, colors)
+
+        # # Generate colors for drawing bounding boxes.
+        # colors = generate_colors(self.class_names)
+        # # Draw bounding boxes on the image file
+        # draw_boxes(image, out_scores, out_boxes, out_classes, self.class_names, colors)
 
         # return annotated image and detected objects
         return image, out_scores, out_boxes, out_classes, processing_time

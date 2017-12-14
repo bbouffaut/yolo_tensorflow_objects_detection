@@ -15,9 +15,10 @@
 # 3. Navigate the browser to the local webpage.
 from flask import Flask, render_template, Response
 from streaming.camera import VideoCamera
-#from yolo_algo.yolo_predict import YoloPredict
+from yolo_algo.yolo_predict import YoloPredict
 import io
 from PIL import Image
+import threading
 
 app = Flask(__name__)
 
@@ -27,25 +28,28 @@ def index():
 
 def gen(camera):
     global yolo_predict
+    semaphore = threading.Semaphore()
 
     while True:
-        # get JPEG frame from webcam
-        frame = camera.get_frame_cv2_format()
 
-        ## process objects detection on get_frame
-        # image, out_scores, out_boxes, out_classes, processing_time = yolo_predict.predict(frame)
-        #
-        # if (len(out_scores) == 0):
-        #     # transform cv2 frame into PIL object
-        #     image = Image.fromarray(frame)
-        #
-        ##transform PIL image into bytes fromarrayimgByteArr = io.BytesIO()
-        # imgByteArr = io.BytesIO()
-        # image.save(imgByteArr, format='BMP')
-        # frame = imgByteArr.getvalue()
+        with semaphore:
+            # get JPEG frame from webcam
+            frame = camera.get_frame_cv2_format()
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/bmp\r\n\r\n' + frame + b'\r\n\r\n')
+            # process objects detection on get_frame
+            image, out_scores, out_boxes, out_classes, processing_time = yolo_predict.predict(frame)
+
+            if (len(out_scores) == 0):
+                # transform cv2 frame into PIL object
+                image = Image.fromarray(frame)
+
+            #transform PIL image into bytes fromarrayimgByteArr = io.BytesIO()
+            imgByteArr = io.BytesIO()
+            image.save(imgByteArr, format='BMP')
+            frame = imgByteArr.getvalue()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/bmp\r\n\r\n' + frame + b'\r\n\r\n')
 
 @app.route('/video_feed')
 def video_feed():
@@ -54,8 +58,8 @@ def video_feed():
 if __name__ == '__main__':
     global yolo_predict
     # load Keras Yolo model
-    #yolo_predict = YoloPredict()
-    #yolo_predict.load_keras_model(image_shape=(480., 848.))
+    yolo_predict = YoloPredict()
+    yolo_predict.load_keras_model(image_shape=(480., 848.))
 
     #run flask server
     app.run(host='0.0.0.0', debug=True)

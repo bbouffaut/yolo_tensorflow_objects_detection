@@ -4,7 +4,6 @@ import os
 import random
 from keras import backend as K
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
 import cv2
 
 def read_classes(classes_path):
@@ -38,23 +37,24 @@ def scale_boxes(boxes, image_shape):
     boxes = boxes * image_dims
     return boxes
 
-def preprocess_image(img_path, model_image_size):
+def preprocess_image(img, model_image_size):
     # check if img_path is a real path or if it is alreay an image
-    if (type(img_path) == str):
-        image_type = imghdr.what(img_path)
-        image = Image.open(img_path)
-    else:
-        image = Image.fromarray(img_path)
+    data_type = type(img)
 
-    resized_image = image.resize(tuple(reversed(model_image_size)), Image.BICUBIC)
-    image_data = np.array(resized_image, dtype='float32')
+    if (data_type == str):
+        image_type = imghdr.what(img)
+        image = cv2.imread(img)
+
+    else: #if (data_type == 'numpy.ndarray'):
+        image = img
+
+    image_data = cv2.resize(image, tuple(reversed(model_image_size)), interpolation = cv2.INTER_CUBIC)
+    image_data = np.array(image_data, dtype='float32')
     image_data /= 255.
     image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
     return image, image_data
 
 def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
-    font_file = os.path.dirname(os.path.realpath(__file__)) + '/../font/FiraMono-Medium.otf'
-    font = ImageFont.truetype(font=font_file,size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
     thickness = (image.size[0] + image.size[1]) // 300
 
     for i, c in reversed(list(enumerate(out_classes))):
@@ -64,24 +64,24 @@ def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
 
         label = '{} {:.2f}'.format(predicted_class, score)
 
-        draw = ImageDraw.Draw(image)
-        label_size = draw.textsize(label, font)
-
-        top, left, bottom, right = box
-        top = max(0, np.floor(top + 0.5).astype('int32'))
-        left = max(0, np.floor(left + 0.5).astype('int32'))
-        bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
-        right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-        print(label, (left, top), (right, bottom))
-
-        if top - label_size[1] >= 0:
-            text_origin = np.array([left, top - label_size[1]])
-        else:
-            text_origin = np.array([left, top + 1])
-
-        # My kingdom for a good redistributable image drawing library.
-        for i in range(thickness):
-            draw.rectangle([left + i, top + i, right - i, bottom - i], outline=colors[c])
-        draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=colors[c])
-        draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-        del draw
+        # draw = ImageDraw.Draw(image)
+        # label_size = draw.textsize(label, font)
+        #
+        # top, left, bottom, right = box
+        # top = max(0, np.floor(top + 0.5).astype('int32'))
+        # left = max(0, np.floor(left + 0.5).astype('int32'))
+        # bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
+        # right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+        # print(label, (left, top), (right, bottom))
+        #
+        # if top - label_size[1] >= 0:
+        #     text_origin = np.array([left, top - label_size[1]])
+        # else:
+        #     text_origin = np.array([left, top + 1])
+        #
+        # # My kingdom for a good redistributable image drawing library.
+        # for i in range(thickness):
+        #     draw.rectangle([left + i, top + i, right - i, bottom - i], outline=colors[c])
+        # draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=colors[c])
+        # draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+        # del draw
