@@ -55,7 +55,6 @@ def preprocess_image(img, model_image_size):
     return image, image_data
 
 def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
-    thickness = (image.size[0] + image.size[1]) // 300
 
     for i, c in reversed(list(enumerate(out_classes))):
         predicted_class = class_names[c]
@@ -64,24 +63,17 @@ def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
 
         label = '{} {:.2f}'.format(predicted_class, score)
 
-        # draw = ImageDraw.Draw(image)
-        # label_size = draw.textsize(label, font)
-        #
-        # top, left, bottom, right = box
-        # top = max(0, np.floor(top + 0.5).astype('int32'))
-        # left = max(0, np.floor(left + 0.5).astype('int32'))
-        # bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
-        # right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+        top, left, bottom, right = box
+        top = max(0, np.floor(top + 0.5).astype('int32'))
+        left = max(0, np.floor(left + 0.5).astype('int32'))
+        bottom = min(image.shape[1], np.floor(bottom + 0.5).astype('int32'))
+        right = min(image.shape[0], np.floor(right + 0.5).astype('int32'))
         # print(label, (left, top), (right, bottom))
         #
-        # if top - label_size[1] >= 0:
-        #     text_origin = np.array([left, top - label_size[1]])
-        # else:
-        #     text_origin = np.array([left, top + 1])
-        #
-        # # My kingdom for a good redistributable image drawing library.
-        # for i in range(thickness):
-        #     draw.rectangle([left + i, top + i, right - i, bottom - i], outline=colors[c])
-        # draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=colors[c])
-        # draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-        # del draw
+        text_origin = (left, top + 1)
+
+        # draw boxe
+        cv2.rectangle(image, (top, left), (bottom, right), colors[c])
+
+        # write class name
+        cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1, colors[c])
