@@ -68,7 +68,9 @@ def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
         left = max(0, np.floor(left + 0.5).astype('int32'))
         bottom = min(image.shape[0], np.floor(bottom + 0.5).astype('int32'))
         right = min(image.shape[1], np.floor(right + 0.5).astype('int32'))
-        print(label, (left, top), (right, bottom))
+
+        # debug
+        #print(label, (left, top), (right, bottom))
 
         text_origin = (left, top - 5)
 
