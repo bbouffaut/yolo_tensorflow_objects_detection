@@ -66,14 +66,14 @@ def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
         top, left, bottom, right = box
         top = max(0, np.floor(top + 0.5).astype('int32'))
         left = max(0, np.floor(left + 0.5).astype('int32'))
-        bottom = min(image.shape[1], np.floor(bottom + 0.5).astype('int32'))
-        right = min(image.shape[0], np.floor(right + 0.5).astype('int32'))
-        # print(label, (left, top), (right, bottom))
-        #
-        text_origin = (left, top + 1)
+        bottom = min(image.shape[0], np.floor(bottom + 0.5).astype('int32'))
+        right = min(image.shape[1], np.floor(right + 0.5).astype('int32'))
+        print(label, (left, top), (right, bottom))
+
+        text_origin = (left, top - 5)
 
         # draw boxe
-        cv2.rectangle(image, (top, left), (bottom, right), colors[c])
+        cv2.rectangle(image, (left, top), (right, bottom), colors[c])
 
         # write class name
-        cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 1, colors[c])
+        cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 0.6, colors[c], 1, cv2.LINE_AA)
