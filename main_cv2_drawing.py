@@ -45,10 +45,10 @@ if __name__ == '__main__':
     yolo_predict.load_keras_model(image_shape=(480., 848.))
 
     #Raaspberry Pi version
-    #camera = VideoCameraPi()
+    camera = VideoCameraPi()
 
     # laptop internal webcam
-    camera = VideoCamera()
+    #camera = VideoCamera()
 
     #wait camera has started
     time.sleep(1)

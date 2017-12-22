@@ -77,5 +77,5 @@ def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
         # draw boxe
         cv2.rectangle(image, (left, top), (right, bottom), colors[c])
 
-        # write class name
+        # write class name
         cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 0.6, colors[c], 1, cv2.LINE_AA)

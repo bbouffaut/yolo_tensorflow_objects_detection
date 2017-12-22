@@ -23,28 +23,20 @@ def yolo_filter_boxes(box_confidence, boxes, box_class_probs, threshold = .6):
     """
 
     # Step 1: Compute box scores
-    ### START CODE HERE ### (≈ 1 line)
     box_scores = box_confidence * box_class_probs
-    ### END CODE HERE ###
 
     # Step 2: Find the box_classes thanks to the max box_scores, keep track of the corresponding score
-    ### START CODE HERE ### (≈ 2 lines)
     box_classes = K.argmax(box_scores, axis=-1)
     box_class_scores = K.max(box_scores, axis=-1)
-    ### END CODE HERE ###
 
     # Step 3: Create a filtering mask based on "box_class_scores" by using "threshold". The mask should have the
     # same dimension as box_class_scores, and be True for the boxes you want to keep (with probability >= threshold)
-    ### START CODE HERE ### (≈ 1 line)
     filtering_mask = ( box_class_scores >= threshold )
-    ### END CODE HERE ###
 
     # Step 4: Apply the mask to scores, boxes and classes
-    ### START CODE HERE ### (≈ 3 lines)
     scores = tf.boolean_mask(box_class_scores, filtering_mask)
     boxes = tf.boolean_mask(boxes, filtering_mask)
     classes = tf.boolean_mask(box_classes, filtering_mask)
-    ### END CODE HERE ###
 
     return scores, boxes, classes
 
@@ -72,16 +64,12 @@ def yolo_non_max_suppression(scores, boxes, classes, max_boxes = 10, iou_thresho
     K.get_session().run(tf.variables_initializer([max_boxes_tensor])) # initialize variable max_boxes_tensor
 
     # Use tf.image.non_max_suppression() to get the list of indices corresponding to boxes you keep
-    ### START CODE HERE ### (≈ 1 line)
     nms_indices = tf.image.non_max_suppression(boxes, scores, max_boxes, iou_threshold, name='nms_indices')
-    ### END CODE HERE ###
 
     # Use K.gather() to select only nms_indices from scores, boxes and classes
-    ### START CODE HERE ### (≈ 3 lines)
     scores = K.gather(scores, nms_indices)
     boxes = K.gather(boxes, nms_indices)
     classes = K.gather(classes, nms_indices)
-    ### END CODE HERE ###
 
     return scores, boxes, classes
 
@@ -106,23 +94,19 @@ def yolo_eval(yolo_outputs, image_shape = (720., 1280.), max_boxes=10, score_thr
     classes -- tensor of shape (None,), predicted class for each box
     """
 
-    ### START CODE HERE ###
-
-    # Retrieve outputs of the YOLO model (≈1 line)
+    # Retrieve outputs of the YOLO model
     box_confidence, box_xy, box_wh, box_class_probs = yolo_outputs
 
-    # Convert boxes to be ready for filtering functions
+    #Convert boxes to be ready for filtering functions
     boxes = yolo_boxes_to_corners(box_xy, box_wh)
 
-    # Use one of the functions you've implemented to perform Score-filtering with a threshold of score_threshold (≈1 line)
+    #Use one of the functions you've implemented to perform Score-filtering with a threshold of score_threshold
     scores, boxes, classes = yolo_filter_boxes(box_confidence, boxes, box_class_probs, score_threshold)
 
-    # Scale boxes back to original image shape.
+    #Scale boxes back to original image shape.
     boxes = scale_boxes(boxes, image_shape)
 
-    # Use one of the functions you've implemented to perform Non-max suppression with a threshold of iou_threshold (≈1 line)
+    #Use one of the functions you've implemented to perform Non-max suppression with a threshold of iou_threshold
     scores, boxes, classes = yolo_non_max_suppression(scores, boxes, classes, max_boxes, iou_threshold)
-
-    ### END CODE HERE ###
 
     return scores, boxes, classes
