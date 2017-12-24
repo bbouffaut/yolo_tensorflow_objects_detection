@@ -3,3 +3,4 @@ test_images/
 *.pyc
 */*.pyc
 */*/*.pyc
+*.pb
