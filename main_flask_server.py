@@ -16,9 +16,6 @@
 from flask import Flask, render_template, Response
 from streaming.camera import VideoCamera
 from yolo_algo.yolo_predict import YoloPredict
-import io
-from PIL import Image
-import threading
 
 app = Flask(__name__)
 
@@ -26,40 +23,34 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-def gen(camera):
-    global yolo_predict
-    semaphore = threading.Semaphore()
+def read_camera(camera, yolo_predict):
 
     while True:
+        frame = camera.get_frame_cv2_format()
 
-        with semaphore:
-            # get JPEG frame from webcam
-            frame = camera.get_frame_cv2_format()
-
-            # process objects detection on get_frame
+        # process objects detection on get_frame
+        if not yolo_predict is None:
             image, out_scores, out_boxes, out_classes, processing_time = yolo_predict.predict(frame)
+        else:
+            image = frame
 
-            if (len(out_scores) == 0):
-                # transform cv2 frame into PIL object
-                image = Image.fromarray(frame)
+        image_bytes = cv2.imencode('.jpg', image)[1].tostring()
 
-            #transform PIL image into bytes fromarrayimgByteArr = io.BytesIO()
-            imgByteArr = io.BytesIO()
-            image.save(imgByteArr, format='BMP')
-            frame = imgByteArr.getvalue()
-
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/bmp\r\n\r\n' + frame + b'\r\n\r\n')
+        yield (b'--frame\r\n'
+               b'Content-Type: image/bmp\r\n\r\n' + image_bytes + b'\r\n\r\n')
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen(VideoCamera()),mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(read_camera(camera, yolo_predict),mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    global yolo_predict
+
     # load Keras Yolo model
     yolo_predict = YoloPredict()
     yolo_predict.load_keras_model(image_shape=(480., 848.))
+
+    #Raaspberry Pi version
+    camera = VideoCameraPi()
 
     #run flask server
     app.run(host='0.0.0.0', debug=True)
