@@ -16,8 +16,6 @@
 #from streaming.camera_pi import VideoCameraPi
 from streaming.camera import VideoCamera
 from yolo_algo.yolo_predict import YoloPredict
-import io
-import threading
 import cv2
 import time
 
