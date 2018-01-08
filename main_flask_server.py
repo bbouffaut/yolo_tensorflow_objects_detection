@@ -14,10 +14,21 @@
 # 2. Run "python main.py".
 # 3. Navigate the browser to the local webpage.
 from flask import Flask, render_template, Response
-from streaming.camera import VideoCamera
 from yolo_algo.yolo_predict import YoloPredict
+import os, cv2
 
 app = Flask(__name__)
+
+def get_camera():
+    if os.uname()[4].startswith("arm"):
+        #Raaspberry Pi version
+        from streaming.camera_pi import VideoCameraPi
+        camera = VideoCameraPi()
+    else:
+        # laptop internal webcam
+        from streaming.camera import VideoCamera
+        camera = VideoCamera()
+    return camera
 
 @app.route('/')
 def index():
@@ -49,8 +60,8 @@ if __name__ == '__main__':
     yolo_predict = YoloPredict()
     yolo_predict.load_keras_model(image_shape=(480., 848.))
 
-    #Raaspberry Pi version
-    camera = VideoCameraPi()
+    # Get the right camera
+    camera = get_camera()
 
     #run flask server
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=False)

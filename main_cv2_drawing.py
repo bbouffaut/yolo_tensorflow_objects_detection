@@ -13,10 +13,9 @@
 # 1. Install Python dependencies: cv2, flask. (wish that pip install works like a charm)
 # 2. Run "python main.py".
 # 3. Navigate the browser to the local webpage.
-#from streaming.camera_pi import VideoCameraPi
-from streaming.camera import VideoCamera
 from yolo_algo.yolo_predict import YoloPredict
 import cv2
+import os
 import time
 
 def read_camera(camera, yolo_predict):
@@ -36,17 +35,25 @@ def read_camera(camera, yolo_predict):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+def get_camera():
+    if os.uname()[4].startswith("arm"):
+        #Raaspberry Pi version
+        from streaming.camera_pi import VideoCameraPi
+        camera = VideoCameraPi()
+    else:
+        # laptop internal webcam
+        from streaming.camera import VideoCamera
+        camera = VideoCamera()
+    return camera
+
 
 if __name__ == '__main__':
     # load Keras Yolo model
     yolo_predict = YoloPredict()
     yolo_predict.load_keras_model(image_shape=(480., 848.))
 
-    #Raaspberry Pi version
-    camera = VideoCameraPi()
-
-    # laptop internal webcam
-    #camera = VideoCamera()
+    #Get the right camera
+    camera = get_camera()
 
     #wait camera has started
     time.sleep(1)
