@@ -53,6 +53,7 @@ def preprocess_image(img, model_image_size):
     image_data = np.array(image_data, dtype='float32')
     image_data /= 255.
     image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
+
     return image, image_data
 
 def build_vis_objects_table(class_names, out_scores, out_boxes, out_classes):
@@ -68,6 +69,7 @@ def build_vis_objects_table(class_names, out_scores, out_boxes, out_classes):
         vis_object.bbox = box
         vis_object.score = score
         vis_object.class_name = predicted_class
+        vis_object.class_id = c
         vis_objects.append(vis_object)
 
     return vis_objects

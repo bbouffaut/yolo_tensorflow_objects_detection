@@ -1,4 +1,7 @@
 from .yolo_utils import generate_colors
+from ..conf import cfg
+import numpy as np
+import cv2
 
 class DrawBoxes:
 
@@ -7,12 +10,17 @@ class DrawBoxes:
         # Generate colors for drawing bounding boxes.
         self.colors = generate_colors(self.class_names)
 
-    def draw_boxes(image, vis_objects, classes_to_display=[] ):
+    def get_colors(self):
+        return self.colors
 
-        for obj in vis_objects:
+    def draw_boxes(self, image, vis_objects, classes_to_display=[] ):
+
+        for i in range(len(vis_objects)):
+            obj = vis_objects[i]
             predicted_class = obj.class_name
             box = obj.bbox
             score = obj.score
+            class_id = obj.class_id
 
             label = '{} {:.2f}'.format(predicted_class, score)
 
@@ -27,8 +35,11 @@ class DrawBoxes:
 
             text_origin = (left, top - 5)
 
+            # get color of the class
+            color = self.colors[class_id]
+
             # draw boxe
-            cv2.rectangle(image, (left, top), (right, bottom), self.colors[c])
+            cv2.rectangle(image, (left, top), (right, bottom), color, cfg.BOX_THINKNESS)
 
             # write class name
-            cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.colors[c], 1, cv2.LINE_AA)
+            cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, cfg.BOX_THINKNESS, cv2.LINE_AA)

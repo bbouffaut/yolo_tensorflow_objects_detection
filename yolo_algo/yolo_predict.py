@@ -19,15 +19,19 @@ class YoloPredict:
         self.sess = K.get_session()
         self.learning_phase = K.learning_phase()
 
+        print('classes_filename={} model_filename={}'.format(self.model_filename, self.classes_filename))
+
     def load_keras_model(self, image_shape):
         self.class_names = read_classes(self.classes_filename)
         anchors = read_anchors(self.anchors_filename)
         self.yolo_model = load_model(self.model_filename)
-        yolo_outputs = yolo_head(self.yolo_model.output, anchors, len(self.class_names))
-        self.scores, self.boxes, self.classes = yolo_eval(yolo_outputs, image_shape)
+        self.yolo_outputs = yolo_head(self.yolo_model.output, anchors, len(self.class_names))
 
         #create DrawBoxes object for drawing detected objects boxes arouns classes
         self.draw_boxes = DrawBoxes(self.class_names)
+
+    def get_draw_boxes_object(self):
+        return self.draw_boxes
 
 
     def predict(self, image_file, draw_all_boxes=True ):
@@ -52,6 +56,9 @@ class YoloPredict:
 
         # Preprocess your image
         image, image_data = preprocess_image(image_file, model_image_size = cfg.MODEL_SIZE)
+
+        # configure Yolo drawing boxes with the shape of the images
+        self.scores, self.boxes, self.classes = yolo_eval(self.yolo_outputs, (float(image.shape[0]), float(image.shape[1])))
 
         # Run the session with the correct tensors and choose the correct placeholders in the feed_dict.
         # You'll need to use feed_dict={yolo_model.input: ... , K.learning_phase(): 0})

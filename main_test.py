@@ -24,7 +24,7 @@ yolo_predict = YoloPredict()
 yolo_predict.load_keras_model(image_shape=(720., 1280.))
 
 image_file = "test_images/test.jpg"
-image, out_scores, out_boxes, out_classes, processing_time = yolo_predict.predict(image_file)
+image, vis_objects, processing_time = yolo_predict.predict(image_file)
 
 # print the processing_time
 print('Processing_time = ' + str(processing_time))
