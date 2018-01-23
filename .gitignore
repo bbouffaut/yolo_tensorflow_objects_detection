@@ -4,3 +4,8 @@ test_images/
 */*.pyc
 */*/*.pyc
 *.pb
+build/*
+lib_fast_rcnn/build/*
+dist/*
+*.egg-info/*
+*.swp
