@@ -6,7 +6,7 @@ def read_readme():
         return f.read()
 
 setup(
-    name='yolo_keras_tensorflow',
+    name='yolo-keras-tensorflow',
     version='1.0.0',
     license='MIT',
     description='Module to load Keras + Tensorflow YOLO implementation based on 80 classes detection',
@@ -24,8 +24,10 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: System :: Monitoring',
     ],
-    packages=find_packages(),
-    #packages=['faster_rcnn_tf'],
+    #packages=find_packages(),
+    packages=['yolo-keras-tensorflow'],
+    package_dir={'yolo-keras-tensorflow': '.'},
+    package_data={'yolo-keras-tensorflow': ['yolo_algo/model_data/*']},
     #py_modules=['faster_rcnn_tf'],
     install_requires=[],
     test_suite='',
