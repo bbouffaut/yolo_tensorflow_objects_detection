@@ -1,11 +1,13 @@
 import tensorflow as tf
 from keras import backend as K
 from keras.models import load_model, Model
-from .utils.yolo_utils import read_classes, read_anchors, generate_colors, preprocess_image, draw_boxes, scale_boxes
+from .utils.yolo_utils import read_classes, read_anchors, preprocess_image, scale_boxes, build_vis_objects_table
 from .utils.keras_yolo import yolo_head, yolo_boxes_to_corners, preprocess_true_boxes, yolo_loss, yolo_body
+from .utils.draw_boxes import DrawBoxes
 from .yolo_boxes_filtering import yolo_eval
 from .utils.timer import Timer
 from .conf import cfg
+from .utils.vis_object import VisObject
 
 
 class YoloPredict:
@@ -24,7 +26,11 @@ class YoloPredict:
         yolo_outputs = yolo_head(self.yolo_model.output, anchors, len(self.class_names))
         self.scores, self.boxes, self.classes = yolo_eval(yolo_outputs, image_shape)
 
-    def predict(self, image_file ):
+        #create DrawBoxes object for drawing detected objects boxes arouns classes
+        self.draw_boxes = DrawBoxes(self.class_names)
+
+
+    def predict(self, image_file, draw_all_boxes=True ):
         """
         Runs the graph stored in "sess" to predict boxes for "image_file". Prints and plots the preditions.
 
@@ -51,16 +57,19 @@ class YoloPredict:
         # You'll need to use feed_dict={yolo_model.input: ... , K.learning_phase(): 0})
         out_scores, out_boxes, out_classes = self.sess.run([ self.scores, self.boxes, self.classes ], feed_dict={ self.yolo_model.input: image_data, self.learning_phase: 0})
 
+        # transform 3 model output lists into a single VisObject list before outputing
+        vis_objects = build_vis_objects_table(self.class_names, out_scores, out_boxes, out_classes)
+
         # measure processing_time
         processing_time = timer.toc(average=False)
 
         # Print predictions info
         print('Found {} boxes in image in {} sec'.format(len(out_boxes), processing_time))
 
-        # Generate colors for drawing bounding boxes.
-        colors = generate_colors(self.class_names)
-        # Draw bounding boxes on the image file
-        draw_boxes(image, out_scores, out_boxes, out_classes, self.class_names, colors)
+        # if all boxes whell be displayed
+        if draw_all_boxes:
+            # Draw bounding boxes on the image file
+            self.draw_boxes.draw_boxes(image, vis_objects)
 
         # return annotated image and detected objects
-        return image, out_scores, out_boxes, out_classes, processing_time
+        return image, vis_objects, processing_time

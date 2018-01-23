@@ -5,6 +5,7 @@ import random
 from keras import backend as K
 import numpy as np
 import cv2
+from .vis_object import VisObject
 
 def read_classes(classes_path):
     with open(classes_path) as f:
@@ -54,28 +55,19 @@ def preprocess_image(img, model_image_size):
     image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
     return image, image_data
 
-def draw_boxes(image, out_scores, out_boxes, out_classes, class_names, colors):
+def build_vis_objects_table(class_names, out_scores, out_boxes, out_classes):
+    vis_objects = []
 
+    # transform 3 lists output into a list of VisObject
     for i, c in reversed(list(enumerate(out_classes))):
         predicted_class = class_names[c]
         box = out_boxes[i]
         score = out_scores[i]
 
-        label = '{} {:.2f}'.format(predicted_class, score)
+        vis_object = VisObject()
+        vis_object.bbox = box
+        vis_object.score = score
+        vis_object.class_name = predicted_class
+        vis_objects.append(vis_object)
 
-        top, left, bottom, right = box
-        top = max(0, np.floor(top + 0.5).astype('int32'))
-        left = max(0, np.floor(left + 0.5).astype('int32'))
-        bottom = min(image.shape[0], np.floor(bottom + 0.5).astype('int32'))
-        right = min(image.shape[1], np.floor(right + 0.5).astype('int32'))
-
-        # debug
-        #print(label, (left, top), (right, bottom))
-
-        text_origin = (left, top - 5)
-
-        # draw boxe
-        cv2.rectangle(image, (left, top), (right, bottom), colors[c])
-
-        # write class name
-        cv2.putText(image, label, text_origin, cv2.FONT_HERSHEY_SIMPLEX, 0.6, colors[c], 1, cv2.LINE_AA)
+    return vis_objects
