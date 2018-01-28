@@ -41,7 +41,7 @@ def read_camera(camera, yolo_predict):
 
         # process objects detection on get_frame
         if not yolo_predict is None:
-            image, out_scores, out_boxes, out_classes, processing_time = yolo_predict.predict(frame)
+            image, vis_objects, processing_time = yolo_predict.predict(frame)
         else:
             image = frame
 
